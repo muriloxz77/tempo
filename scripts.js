@@ -1,25 +1,31 @@
-const express = require('express');
-const app = express();
-const port = 3000;
 
-let cidades = [
-  { id: 1, nome: 'Rio de Janeiro', temperatura: 28, descricao: 'Nuvens Dispersas', umidade: 70 },
-  { id: 2, nome: 'São Paulo', temperatura: 25, descricao: 'Ensolarado', umidade: 60 },
-  { id: 3, nome: 'Belo Horizonte', temperatura: 30, descricao: 'Chuva', umidade: 80 }
-];
+let chave = "cebcd482eda57fa9a6714c1c2ba91885"
 
-app.use(express.json());
 
-// Operação GET para obter todas as cidades
-app.get('/cidades', (req, res) => {
-  res.json(cidades);
-});
+function colocarNaTela(dados){
+    console.log(dados)
+    document.querySelector(".cidade").innerHTML = "Tempo em " + dados.name
+    document.querySelector(".temp").innerHTML =  Math.floor(dados.main.temp) + "°C"
+    document.querySelector(".descricao").innerHTML = dados.weather[0].description
+    document.querySelector(".icone").src = "https://openweathermap.org/img/wn/" + dados.weather[0].icon + ".png"
+}
 
-// Operação GET para obter uma cidade específica
-app.get('/cidades/:id', (req, res) => {
-  const cidade = cidades.find(c => c.id === parseInt(req.params.id));
-  if (!cidade) return res.status(404).send('Cidade não encontrada');
-  res.json(cidade);
-});
+async function buscarCidade(cidade){
+    let dados = await fetch("https://api.openweathermap.org/data/2.5/weather?q=" + 
+    cidade + 
+    "&appid=" + 
+    chave + 
+    "&lang=pt_br" +
+    "&units=metric"
+    )
+    .then(resposta => resposta.json())
 
-// Operação POST para adicionar uma nova cidade
+    colocarNaTela(dados)
+}
+
+
+function cliqueiNoBotao(){
+   let cidade = document.querySelector(".input-cidade").value
+
+   buscarCidade(cidade)
+}
