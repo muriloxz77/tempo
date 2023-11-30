@@ -1,17 +1,23 @@
 from flask import Flask, jsonify, request
 import pandas as pd
+import csv
 
 app = Flask(__name__)
 
-# Dados de exemplo
+
+# Dados das cidades
 cidades = [
     {"id": 1, "nome": "Rio de Janeiro", "temperatura": 28, "descricao": "Nuvens Dispersas", "umidade": 70},
     {"id": 2, "nome": "São Paulo", "temperatura": 25, "descricao": "Ensolarado", "umidade": 60},
     {"id": 3, "nome": "Belo Horizonte", "temperatura": 30, "descricao": "Chuva", "umidade": 80},
 ]
 
+# Escrever os dados no arquivo CSV
+with open('cidades.csv', mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.DictWriter(file, fieldnames=["id", "nome", "temperatura", "descricao", "umidade"])
+    writer.writeheader()
+    writer.writerows(cidades)
 
-# Operação GET para obter todas as cidades
 @app.route('/cidades', methods=['GET'])
 def obter_cidades():
     return jsonify(cidades)
@@ -54,24 +60,6 @@ def excluir_cidade(id):
         return jsonify({"mensagem": "Cidade excluída com sucesso"})
     else:
         return jsonify({"mensagem": "Cidade não encontrada"}), 404
-    
-async def buscarCidade(cidade):
-    try:
-        df = pd.read_csv("cidades.csv")
-        cidade_ encontrada = df[df["name"] == cidade]
-        if cidade_encontrada.empty:
-            return None
-        tempo = cidade_encontrada["main"]["temp"].values[0]
-        descricao = cidade_encontrada["weather"].values[0]["description"]
-        umidade = cidade_encontrada["main"]["humidity"].values[0]
-        return {
-            "nome": cidade,
-            "temperatura": tempo,
-            "descricao": descricao,
-            "umidade": umidade
-        }
-    except FileNotFoundError:
-        return None
 
 if __name__ == '__main__':
     app.run()
